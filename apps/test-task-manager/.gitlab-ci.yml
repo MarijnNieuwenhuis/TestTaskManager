@@ -1,0 +1,15 @@
+include:
+    - project: "btcdirect-api/ci-cd"
+      ref: master
+      file: "/analysis/sonarqube.yml"
+    - project: "btcdirect-api/ci-cd"
+      ref: master
+      file: "/deployment/argo-k8s.yml"
+    - project: "btcdirect-api/ci-cd"
+      ref: master
+      file: "/default-ci/golang.yml"
+
+variables:
+    TEST_PACKAGES: "./internal/... ./pkg/..."
+    EXCLUDE_FROM_TESTS: "/app|/http/server"
+    GOVERSION: "1.22"

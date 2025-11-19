@@ -9,6 +9,24 @@ import (
 	"gitlab.com/btcdirect-api/test-task-manager/internal/store"
 )
 
+const (
+	// Valid priority emoticons (Eisenhower Matrix).
+	PriorityUrgentImportant = "🔥" // Urgent & Important
+	PriorityImportant       = "⭐" // Important, Not Urgent
+	PriorityUrgent          = "⚡" // Urgent, Not Important
+	PriorityLow             = "💡" // Not Urgent, Not Important
+	PriorityDefault         = "📋" // Default/Uncategorized
+
+	// Valid color hex codes.
+	ColorRed    = "#dc3545"
+	ColorBlue   = "#0d6efd"
+	ColorYellow = "#ffc107"
+	ColorGreen  = "#28a745"
+	ColorPurple = "#6f42c1"
+	ColorOrange = "#fd7e14"
+	ColorGrey   = "#6c757d"
+)
+
 // TaskService handles business logic for tasks.
 type TaskService struct {
 	store *store.TaskStore
@@ -25,7 +43,7 @@ func (s *TaskService) GetAll() []model.Task {
 }
 
 // Create creates a new task with validation.
-func (s *TaskService) Create(title string) (model.Task, error) {
+func (s *TaskService) Create(title, priority, color string) (model.Task, error) {
 	// Trim whitespace
 	title = strings.TrimSpace(title)
 
@@ -38,8 +56,26 @@ func (s *TaskService) Create(title string) (model.Task, error) {
 		return model.Task{}, ErrTitleTooLong
 	}
 
-	// Create task
-	task := s.store.Create(title)
+	// Apply defaults if not provided
+	if priority == "" {
+		priority = PriorityDefault
+	}
+	if color == "" {
+		color = ColorGrey
+	}
+
+	// Validate priority
+	if !isValidPriority(priority) {
+		return model.Task{}, ErrInvalidPriority
+	}
+
+	// Validate color
+	if !isValidColor(color) {
+		return model.Task{}, ErrInvalidColor
+	}
+
+	// Create task with priority and color
+	task := s.store.Create(title, priority, color)
 	return task, nil
 }
 
@@ -58,4 +94,35 @@ func (s *TaskService) Delete(id string) error {
 		return fmt.Errorf("failed to delete task: %w", err)
 	}
 	return nil
+}
+
+// isValidPriority checks if the given priority emoticon is valid.
+func isValidPriority(p string) bool {
+	validPriorities := []string{
+		PriorityUrgentImportant,
+		PriorityImportant,
+		PriorityUrgent,
+		PriorityLow,
+		PriorityDefault,
+	}
+	for _, valid := range validPriorities {
+		if p == valid {
+			return true
+		}
+	}
+	return false
+}
+
+// isValidColor checks if the given color hex code is valid.
+func isValidColor(c string) bool {
+	validColors := []string{
+		ColorRed, ColorBlue, ColorYellow, ColorGreen,
+		ColorPurple, ColorOrange, ColorGrey,
+	}
+	for _, valid := range validColors {
+		if c == valid {
+			return true
+		}
+	}
+	return false
 }

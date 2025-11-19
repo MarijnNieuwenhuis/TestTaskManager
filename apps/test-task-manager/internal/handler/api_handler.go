@@ -30,7 +30,9 @@ func (h *APIHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 // CreateTask creates a new task from JSON.
 func (h *APIHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Title string `json:"title"`
+		Title    string `json:"title"`
+		Priority string `json:"priority"` // Optional: defaults to 📋
+		Color    string `json:"color"`    // Optional: defaults to #6c757d
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -38,10 +40,18 @@ func (h *APIHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.service.Create(req.Title)
+	task, err := h.service.Create(req.Title, req.Priority, req.Color)
 	if err != nil {
 		if errors.Is(err, service.ErrEmptyTitle) || errors.Is(err, service.ErrTitleTooLong) {
 			respondError(w, err.Error(), "INVALID_INPUT", http.StatusBadRequest)
+			return
+		}
+		if errors.Is(err, service.ErrInvalidPriority) {
+			respondError(w, "Invalid priority emoticon. Must be one of: 🔥, ⭐, ⚡, 💡, 📋", "INVALID_INPUT", http.StatusBadRequest)
+			return
+		}
+		if errors.Is(err, service.ErrInvalidColor) {
+			respondError(w, "Invalid color code. Must be a valid hex code.", "INVALID_INPUT", http.StatusBadRequest)
 			return
 		}
 		respondError(w, "Failed to create task", "INTERNAL_SERVER_ERROR", http.StatusInternalServerError)

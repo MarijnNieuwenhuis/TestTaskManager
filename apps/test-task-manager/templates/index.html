@@ -33,17 +33,52 @@
                 <div class="card mb-4" data-controller="tasks">
                     <div class="card-body">
                         <h5 class="card-title">Add New Task</h5>
-                        <form data-action="submit->tasks#create" class="d-flex gap-2">
-                            <input
-                                type="text"
-                                name="title"
-                                class="form-control"
-                                placeholder="Enter task title..."
-                                required
-                                data-tasks-target="input"
-                                autocomplete="off"
-                            >
-                            <button type="submit" class="btn btn-primary">Add</button>
+                        <form data-action="submit->tasks#create">
+                            <div class="d-flex gap-2 mb-3">
+                                <input
+                                    type="text"
+                                    name="title"
+                                    class="form-control"
+                                    placeholder="Enter task title..."
+                                    required
+                                    data-tasks-target="input"
+                                    autocomplete="off"
+                                >
+                                <button type="submit" class="btn btn-primary">Add</button>
+                            </div>
+
+                            <!-- Priority Selector -->
+                            <div class="btn-group w-100" role="group" aria-label="Priority selector">
+                                <input type="radio" class="btn-check" name="priority" id="priority-urgent"
+                                       value="🔥" data-color="#dc3545" data-tasks-target="priorityInput">
+                                <label class="btn btn-outline-danger" for="priority-urgent">
+                                    🔥 Urgent & Important
+                                </label>
+
+                                <input type="radio" class="btn-check" name="priority" id="priority-important"
+                                       value="⭐" data-color="#0d6efd" data-tasks-target="priorityInput">
+                                <label class="btn btn-outline-primary" for="priority-important">
+                                    ⭐ Important
+                                </label>
+
+                                <input type="radio" class="btn-check" name="priority" id="priority-urgent-only"
+                                       value="⚡" data-color="#ffc107" data-tasks-target="priorityInput">
+                                <label class="btn btn-outline-warning" for="priority-urgent-only">
+                                    ⚡ Urgent
+                                </label>
+
+                                <input type="radio" class="btn-check" name="priority" id="priority-low"
+                                       value="💡" data-color="#28a745" data-tasks-target="priorityInput">
+                                <label class="btn btn-outline-success" for="priority-low">
+                                    💡 Low
+                                </label>
+
+                                <input type="radio" class="btn-check" name="priority" id="priority-default"
+                                       value="📋" data-color="#6c757d" data-tasks-target="priorityInput" checked>
+                                <label class="btn btn-outline-secondary" for="priority-default">
+                                    📋 Default
+                                </label>
+                            </div>
                         </form>
                         <div
                             class="alert alert-danger mt-3 d-none"
@@ -54,17 +89,54 @@
                 </div>
 
                 <!-- Task List -->
-                <div class="card">
+                <div class="card" data-controller="tasks">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Tasks</h5>
 
                         {{if .Tasks}}
-                            <ul class="list-group list-group-flush" data-controller="tasks" data-tasks-target="list">
+                            <!-- Filter Buttons -->
+                            <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        data-action="click->tasks#clearFilters">
+                                    Show All
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        data-action="click->tasks#filterByPriority"
+                                        data-priority="🔥">
+                                    🔥
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                        data-action="click->tasks#filterByPriority"
+                                        data-priority="⭐">
+                                    ⭐
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-warning"
+                                        data-action="click->tasks#filterByPriority"
+                                        data-priority="⚡">
+                                    ⚡
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-success"
+                                        data-action="click->tasks#filterByPriority"
+                                        data-priority="💡">
+                                    💡
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        data-action="click->tasks#filterByPriority"
+                                        data-priority="📋">
+                                    📋
+                                </button>
+                                <span class="ms-2 text-muted" data-tasks-target="taskCount">
+                                    Showing {{len .Tasks}} tasks
+                                </span>
+                            </div>
+
+                            <ul class="list-group list-group-flush" data-tasks-target="list">
                                 {{range .Tasks}}
                                     <li
                                         class="list-group-item d-flex justify-content-between align-items-center"
-                                        data-controller="tasks"
                                         data-task-id="{{.ID}}"
+                                        data-priority="{{.Priority}}"
+                                        style="border-left: 4px solid {{.Color}}"
                                     >
                                         <div class="form-check flex-grow-1">
                                             <input
@@ -79,7 +151,7 @@
                                                 for="task-{{.ID}}"
                                                 data-tasks-target="label"
                                             >
-                                                {{.Title}}
+                                                <span class="me-2">{{.Priority}}</span>{{.Title}}
                                             </label>
                                         </div>
                                         <button

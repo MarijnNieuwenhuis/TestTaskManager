@@ -49,8 +49,8 @@ func (s *TaskStore) GetByID(id string) (model.Task, error) {
 	return model.Task{}, ErrTaskNotFound
 }
 
-// Create adds a new task.
-func (s *TaskStore) Create(title string) model.Task {
+// Create adds a new task with priority and color.
+func (s *TaskStore) Create(title, priority, color string) model.Task {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -59,6 +59,8 @@ func (s *TaskStore) Create(title string) model.Task {
 		Title:     title,
 		Completed: false,
 		CreatedAt: time.Now(),
+		Priority:  priority,
+		Color:     color,
 	}
 
 	s.tasks = append(s.tasks, task)

@@ -5,6 +5,14 @@ A lightweight task management web application built with Go and Stimulus.js. Thi
 ## Features
 
 - **Create Tasks**: Add new tasks with title validation
+- **Priority Indicators**: Categorize tasks using Eisenhower Matrix methodology
+  - 🔥 Urgent & Important (Red)
+  - ⭐ Important (Blue)
+  - ⚡ Urgent (Yellow)
+  - 💡 Low Priority (Green)
+  - 📋 Default (Grey)
+- **Visual Priorities**: Color-coded left borders and emoticons for quick recognition
+- **Client-Side Filtering**: Instant filtering by priority with multi-select support
 - **Toggle Completion**: Mark tasks as complete or incomplete
 - **Delete Tasks**: Remove tasks with confirmation
 - **Real-time Updates**: All interactions via AJAX without page reloads
@@ -108,6 +116,9 @@ The application will start on `http://localhost:8080`
 - `GET /health` - Health check endpoint
 - `GET /api/tasks` - Get all tasks (JSON)
 - `POST /api/tasks` - Create new task (JSON)
+  - Request body: `{"title": "string", "priority": "string (optional)", "color": "string (optional)"}`
+  - Priority values: 🔥, ⭐, ⚡, 💡, 📋 (defaults to 📋 if omitted)
+  - Color values: #dc3545, #0d6efd, #ffc107, #28a745, #6f42c1, #fd7e14, #6c757d (defaults to #6c757d if omitted)
 - `PATCH /api/tasks/{id}/toggle` - Toggle task completion (JSON)
 - `DELETE /api/tasks/{id}` - Delete task (JSON)
 
@@ -128,6 +139,11 @@ The application will start on `http://localhost:8080`
 - Title must not be empty after trimming whitespace
 - Title must not exceed 255 characters
 - Title is automatically trimmed before saving
+- Priority must be one of: 🔥 (Urgent & Important), ⭐ (Important), ⚡ (Urgent), 💡 (Low), 📋 (Default)
+- Priority defaults to 📋 (Default) if not provided or empty
+- Color must be a valid hex code from the predefined palette
+- Color defaults to #6c757d (grey) if not provided or empty
+- Priority and color are immutable after task creation
 
 ### Thread Safety
 
@@ -139,9 +155,10 @@ The TaskStore uses `sync.RWMutex` for concurrent access:
 ### Error Handling
 
 The application uses:
-- **Sentinel errors** for expected errors (ErrTaskNotFound, ErrEmptyTitle, ErrTitleTooLong)
+- **Sentinel errors** for expected errors (ErrTaskNotFound, ErrEmptyTitle, ErrTitleTooLong, ErrInvalidPriority, ErrInvalidColor)
 - **Error wrapping** with fmt.Errorf and %w for context
 - **HTTP status codes**: 200 OK, 201 Created, 400 Bad Request, 404 Not Found, 500 Internal Server Error
+- **Helpful error messages**: API returns user-friendly messages for validation failures (e.g., listing valid priority values)
 
 ## Configuration
 
@@ -161,6 +178,11 @@ Environment variables (configure in `.env`):
    - Add a task with valid title
    - Try to add empty task (should show error)
    - Try to add very long title (>255 chars, should show error)
+   - Create tasks with different priorities (🔥, ⭐, ⚡, 💡, 📋)
+   - Verify colored left borders match priority colors
+   - Test priority filter buttons (click to activate, click again to deactivate)
+   - Test multiple filter selection (e.g., show both 🔥 and ⭐ tasks)
+   - Verify task count updates when filtering
    - Toggle task completion (checkbox)
    - Delete a task (with confirmation)
    - Verify all actions work without page reload
@@ -189,9 +211,31 @@ make build
 ### Task Creation
 - Form submission via Stimulus.js
 - Client-side validation (required field)
-- Server-side validation (empty check, length limit)
+- Server-side validation (empty check, length limit, priority, color)
+- Priority selection with visual radio buttons
 - Optimistic UI updates
 - Error feedback to user
+
+### Priority Selection
+- Radio button group with 5 Eisenhower Matrix categories:
+  - 🔥 Urgent & Important (Red #dc3545) - Do first
+  - ⭐ Important (Blue #0d6efd) - Schedule
+  - ⚡ Urgent (Yellow #ffc107) - Delegate
+  - 💡 Low Priority (Green #28a745) - Do later
+  - 📋 Default (Grey #6c757d) - Uncategorized
+- Visual color coding matches Bootstrap theme colors
+- Defaults to 📋 (Default) if no selection made
+- Priority is immutable after task creation
+
+### Priority Filtering
+- Filter buttons above task list for instant filtering
+- Click filter button to activate (shows only matching tasks)
+- Click again to deactivate filter
+- Multiple filters can be active simultaneously (OR logic)
+- "Show All" button clears all active filters
+- Task count displays "Showing X of Y tasks" when filtering
+- Client-side filtering provides <100ms response time
+- No server round-trips needed for filtering
 
 ### Task Toggle
 - Checkbox interaction via Stimulus.js

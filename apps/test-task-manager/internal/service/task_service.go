@@ -43,7 +43,7 @@ func (s *TaskService) GetAll() []model.Task {
 }
 
 // Create creates a new task with validation.
-func (s *TaskService) Create(title string) (model.Task, error) {
+func (s *TaskService) Create(title, priority, color string) (model.Task, error) {
 	// Trim whitespace
 	title = strings.TrimSpace(title)
 
@@ -56,8 +56,26 @@ func (s *TaskService) Create(title string) (model.Task, error) {
 		return model.Task{}, ErrTitleTooLong
 	}
 
-	// Create task
-	task := s.store.Create(title)
+	// Apply defaults if not provided
+	if priority == "" {
+		priority = PriorityDefault
+	}
+	if color == "" {
+		color = ColorGrey
+	}
+
+	// Validate priority
+	if !isValidPriority(priority) {
+		return model.Task{}, ErrInvalidPriority
+	}
+
+	// Validate color
+	if !isValidColor(color) {
+		return model.Task{}, ErrInvalidColor
+	}
+
+	// Create task with priority and color
+	task := s.store.Create(title, priority, color)
 	return task, nil
 }
 

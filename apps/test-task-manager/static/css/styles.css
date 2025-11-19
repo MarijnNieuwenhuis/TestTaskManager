@@ -1,0 +1,59 @@
+/* Simple Task Manager - Custom Styles */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Task item animations */
+.list-group-item {
+    transition: background-color 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Completed task styling */
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+/* Alert fade-in animation */
+.alert {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading state for buttons */
+.btn:disabled {
+    cursor: not-allowed;
+}
+
+/* Custom checkbox styling */
+.form-check-input:checked {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+/* Footer styling */
+footer {
+    margin-top: auto;
+}

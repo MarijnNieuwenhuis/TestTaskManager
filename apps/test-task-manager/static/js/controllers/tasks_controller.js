@@ -164,10 +164,10 @@ export default class extends Controller {
 
             // Show if no filters active OR priority matches any active filter
             if (this.activeFilters.size === 0 || this.activeFilters.has(taskPriority)) {
-                task.style.display = ""
+                task.classList.remove('d-none')
                 visibleCount++
             } else {
-                task.style.display = "none"
+                task.classList.add('d-none')
             }
         })
 

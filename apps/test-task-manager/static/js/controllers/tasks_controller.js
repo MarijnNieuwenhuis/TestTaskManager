@@ -130,9 +130,6 @@ export default class extends Controller {
         const priority = event.target.dataset.priority
         const button = event.target
 
-        console.log("Filter clicked, priority:", priority)
-        console.log("Active filters before:", Array.from(this.activeFilters))
-
         // Toggle filter
         if (this.activeFilters.has(priority)) {
             this.activeFilters.delete(priority)
@@ -141,8 +138,6 @@ export default class extends Controller {
             this.activeFilters.add(priority)
             button.classList.add("active")
         }
-
-        console.log("Active filters after:", Array.from(this.activeFilters))
 
         this.applyFilters()
     }
@@ -161,30 +156,20 @@ export default class extends Controller {
 
     // Apply active filters to task list
     applyFilters() {
-        console.log("applyFilters called")
-        console.log("listTarget:", this.listTarget)
-
         const tasks = this.listTarget.querySelectorAll('[data-task-id]')
-        console.log("Found tasks:", tasks.length)
-
         let visibleCount = 0
 
         tasks.forEach(task => {
             const taskPriority = task.dataset.priority
-            console.log("Task priority:", taskPriority, "Active filters:", Array.from(this.activeFilters))
 
             // Show if no filters active OR priority matches any active filter
             if (this.activeFilters.size === 0 || this.activeFilters.has(taskPriority)) {
-                console.log("Showing task:", task.dataset.taskId)
                 task.classList.remove('d-none')
                 visibleCount++
             } else {
-                console.log("Hiding task:", task.dataset.taskId)
                 task.classList.add('d-none')
             }
         })
-
-        console.log("Visible count:", visibleCount)
 
         // Update task count
         if (this.hasTaskCountTarget) {
